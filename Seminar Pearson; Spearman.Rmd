@@ -1,0 +1,123 @@
+---
+title: "Seminar 8"
+author: "Mengling Xu"
+date: "2025-03-13"
+output: html_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(dplyr)
+library(readr)
+library(ggplot2)
+
+
+misinfo_d <- read_csv('../data8/life-under-lockdown-wave2-extract (2).csv')
+
+knowledge_levels <- c(
+  'Nothing at all',
+  'Not very much',
+  'A fair amount',
+  'A great deal'
+)
+
+misinfo_d <- misinfo_d %>%
+  mutate(
+    know_facebook = know_facebook %>%
+      ordered(
+        levels = knowledge_levels
+      )
+  )
+```
+
+```{r visualise-age}
+misinfo_d %>%
+  ggplot(
+    aes(x = age)
+  ) +
+  geom_histogram(binwidth = 5)
+```
+
+```{r visualise-gender}
+misinfo_d %>%
+  ggplot(
+    aes(x = gender)
+  ) +
+  geom_bar()
+```
+
+```{r visualise-facebook}
+misinfo_d %>%
+  ggplot(
+    aes(x = know_facebook)
+  ) +
+  geom_bar()
+```
+
+```{r}
+misinfo_d %>%
+  ggplot(
+    aes(x = beliefs)
+  ) +
+  geom_histogram(binwidth = 1)
+```
+# Gender vs beliefs
+```{r gender-vs-beliefs-table}
+misinfo_d %>%
+  group_by(gender) %>%
+  summarise(n = n(), M = mean(beliefs), Mdn = median(beliefs), SD = sd(beliefs))
+```
+#Descriptive
+H1:
+H2:
+H3:
+
+
+#Findings
+## Gender versus number of misinformation beliefs
+```{r gender-vs-beliefs-test}
+misinfo_d %>%
+  filter(gender != 'In another way') %>%
+  t.test(
+    beliefs ~ gender,
+    data = .
+  )
+```
+
+In the sample, men had more misinformation beliefs (M = 0.73, SD = 1.13) than women (M = 0.61, SD = 1.05), but this was not statistically significant, t(494.31) = -1.20, p = 0.230.
+
+##Age versus number of misinformation beliefs
+## Knowledge from facebook  versus number of misinformation beliefs
+
+```{r facebook-beliefs-visualization}
+misinfo_d %>%
+  ggplot(aes(x=know_facebook,y=beliefs))+
+  geom_boxplot()
+```
+```{r facebook-belief-correlation}
+misinfo_d %>%
+  mutate(
+    know_facebook= as.numeric(know_facebook)
+  ) %>%
+  cor.test(
+   ~ know_facebook + beliefs,
+    data= . ,
+    method = 'spearman',
+    exact = FALSE
+    
+  )
+```
+```{r age-belief -visualization}
+misinfo_d %>%
+  ggplot(aes(x=age,y=beliefs))+
+  geom_jitter()
+```
+
+```{r age-belief-correlation}
+misinfo_d %>%
+  cor.test(
+   ~ age + beliefs,
+    data= . ,
+    method = 'pearson'
+  )
+```
